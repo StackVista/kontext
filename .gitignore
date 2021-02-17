@@ -1,0 +1,8 @@
+bin/
+dist/
+
+.vscode/launch.json
+
+__debug_bin
+
+kontext

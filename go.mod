@@ -7,5 +7,4 @@ require (
 	github.com/rs/zerolog v1.20.0
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.7.0
-
 )

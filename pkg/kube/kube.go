@@ -16,23 +16,27 @@ func (e ErrNoKubeFound) Error() string {
 
 const DotKube = ".kube"
 
-func PathToDotKube() (string, error) {
+func FindDotKube() (string, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 
-	p := path.Join(cwd, DotKube)
-	ok, err := fileExists(p)
+	return PathToDotKube(cwd)
+}
+
+func PathToDotKube(p string) (string, error) {
+	kubePath := path.Join(p, DotKube)
+	ok, err := fileExists(kubePath)
 	if err != nil {
 		return "", err
 	}
 
 	if ok {
-		return p, nil
+		return kubePath, nil
 	}
 
-	return "", ErrNoKubeFound{FromDir: cwd}
+	return "", ErrNoKubeFound{FromDir: p}
 }
 
 // fileExists checks if a file exists and is not a directory before we

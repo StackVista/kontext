@@ -47,11 +47,20 @@ func (e Export) Remove(key string) {
 //
 // target is usually $0 and can also be prefixed by `-`
 func DetectShell(target string) (Shell, error) {
-	target = filepath.Base(target)
 	// $0 starts with "-"
 	if target[0:1] == "-" {
 		target = target[1:]
 	}
+
+	if target == "" {
+		// No shell entered, try to detect through environment
+		e := env.GetEnvironment()
+		if s, ok := e["SHELL"]; ok {
+			target = s
+		}
+	}
+
+	target = filepath.Base(target)
 
 	switch target {
 	case "bash":

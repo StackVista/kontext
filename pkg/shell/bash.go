@@ -32,7 +32,7 @@ func (sh bash) Hook() (hook.Hook, error) {
 	return hook.Hook{Contents: bashHook}, nil
 }
 
-func (sh bash) Export(e Export) (string, error) {
+func (sh bash) Export(e env.Export) (string, error) {
 	buf := bytes.NewBuffer(nil)
 	for key, value := range e {
 		if value == nil {

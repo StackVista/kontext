@@ -1,12 +1,33 @@
 package env
 
 import (
+	"fmt"
 	"os"
 	"strings"
 )
 
 // Environment is a map of environment variables.
 type Environment map[string]string
+
+type ErrNoSuchEnvVar struct {
+	Var string
+}
+
+func (e ErrNoSuchEnvVar) Error() string {
+	return fmt.Sprintf("No environment variable '%s' defined", e.Var)
+}
+
+// FindEnvironment finds the value for the given key in the environment variables
+func FindEnvironment(key string) (string, error) {
+	for _, kv := range os.Environ() {
+		k, v := splitEnvKeyValue(kv)
+		if k == key {
+			return v, nil
+		}
+	}
+
+	return "", ErrNoSuchEnvVar{Var: key}
+}
 
 // GetEnvironment converts the operating system environment variables to a map
 func GetEnvironment() Environment {
@@ -32,4 +53,8 @@ func splitEnvKeyValue(kv string) (string, string) {
 	default:
 		return kv, ""
 	}
+}
+
+func Join(values ...string) string {
+	return strings.Join(values, ":")
 }

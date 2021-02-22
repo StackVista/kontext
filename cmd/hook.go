@@ -15,10 +15,11 @@ func HookCommand() *cobra.Command {
 		Short:              "Returns a shell hook function to automatically switch on changing directories",
 		Args:               cobra.ExactArgs(1),
 		DisableFlagParsing: true,
-		Example: `On most shells you can simply execute:
+		Example: `To register the hook in your shell, on most shells you can simply execute:
 
 	> eval "$(kontext hook <shell>)"
-		`,
+
+The shell can be autodetected by providing a '-' for the <shell> argument.`,
 		RunE: runHook,
 	}
 
@@ -26,23 +27,11 @@ func HookCommand() *cobra.Command {
 }
 
 func runHook(cmd *cobra.Command, args []string) error {
-	target := args[0]
-	// Because flag parsing is disabled for this command, manually check for help flag
-	if target == "-h" || target == "--help" {
+	if IsHelp(cmd, args) {
 		return cmd.Usage()
 	}
 
-	selfPath, err := os.Executable()
-	if err != nil {
-		return err
-	}
-
-	// Convert Windows path if needed
-	selfPath = strings.ReplaceAll(selfPath, "\\", "/")
-	ctx := hook.Context{
-		SelfPath: selfPath,
-		Name:     "kontext",
-	}
+	target := args[0]
 
 	shell, err := shell.DetectShell(target)
 	if err != nil {
@@ -54,12 +43,34 @@ func runHook(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	rendered, err := hook.Render(ctx)
+	hookContext, err := buildHookContext()
 	if err != nil {
 		return err
 	}
 
-	print(rendered)
+	rendered, err := hook.Render(hookContext)
+	if err != nil {
+		return err
+	}
+
+	cmd.Print(rendered)
 
 	return nil
+}
+
+// buildHookContext builds the rendering Context for the shell hook
+func buildHookContext() (hook.Context, error) {
+	selfPath, err := os.Executable()
+	if err != nil {
+		return hook.Context{}, err
+	}
+
+	// Convert Windows path if needed
+	selfPath = strings.ReplaceAll(selfPath, "\\", "/")
+	ctx := hook.Context{
+		SelfPath: selfPath,
+		Name:     "kontext",
+	}
+
+	return ctx, nil
 }

@@ -22,47 +22,36 @@ type Shell interface {
 	// setups direnv as a prompt hook.
 	Hook() (hook.Hook, error)
 
-	// Export outputs the ShellExport as an evaluatable string on the host shell
-	Export(e Export) (string, error)
+	// Export outputs the Export as an evaluatable string on the host shell
+	Export(e env.Export) (string, error)
 
 	// Dump outputs and evaluatable string that sets the env in the host shell
 	Dump(env env.Environment) (string, error)
-}
-
-// Export represents environment variables to add and remove on the host
-// shell.
-type Export map[string]*string
-
-// Add represents the additon of a new environment variable
-func (e Export) Add(key, value string) {
-	e[key] = &value
-}
-
-// Remove represents the removal of a given `key` environment variable.
-func (e Export) Remove(key string) {
-	e[key] = nil
 }
 
 // DetectShell returns a Shell instance from the given target.
 //
 // target is usually $0 and can also be prefixed by `-`
 func DetectShell(target string) (Shell, error) {
+	shell := target
+
 	// $0 starts with "-"
-	if target[0:1] == "-" {
-		target = target[1:]
+	if shell[0:1] == "-" {
+		shell = shell[1:]
 	}
 
-	if target == "" {
-		// No shell entered, try to detect through environment
-		e := env.GetEnvironment()
-		if s, ok := e["SHELL"]; ok {
-			target = s
+	if shell == "" {
+		s, err := env.FindEnvironment("SHELL")
+		if err != nil {
+			return nil, ErrUnknownShell{target}
 		}
+
+		shell = s
 	}
 
-	target = filepath.Base(target)
+	shell = filepath.Base(shell)
 
-	switch target {
+	switch shell {
 	case "bash":
 		return Bash, nil
 	case "zsh":

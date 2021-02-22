@@ -1,39 +1,49 @@
-package kube
+package konfig
 
 import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 )
+
+const ConfigFileName = ".konfig"
 
 type ErrNoKubeFound struct {
 	FromDir string
 }
 
 func (e ErrNoKubeFound) Error() string {
-	return fmt.Sprintf("No .kube found in %s or parent directories", e.FromDir)
+	return fmt.Sprintf("No '%s' found in '%s' or parent directories", ConfigFileName, e.FromDir)
 }
 
-const DotKube = ".kube"
-
-func FindDotKube() (string, error) {
+func FindKontextConfig() (string, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 
-	return PathToDotKube(cwd)
+	return PathToKontextConfig(cwd)
 }
 
-func PathToDotKube(p string) (string, error) {
-	kubePath := path.Join(p, DotKube)
-	ok, err := fileExists(kubePath)
+func PathToKontextConfig(p string) (string, error) {
+	absPath, err := filepath.Abs(p)
 	if err != nil {
 		return "", err
 	}
 
-	if ok {
-		return kubePath, nil
+	for absPath != "/" && absPath != "." {
+		kubePath := path.Join(absPath, ConfigFileName)
+		ok, err := fileExists(kubePath)
+		if err != nil {
+			return "", err
+		}
+
+		if ok {
+			return kubePath, nil
+		}
+
+		absPath = filepath.Dir(absPath)
 	}
 
 	return "", ErrNoKubeFound{FromDir: p}
@@ -47,7 +57,9 @@ func fileExists(filename string) (bool, error) {
 		if os.IsNotExist(err) {
 			return false, nil
 		}
+
 		return false, err
 	}
+
 	return !info.IsDir(), nil
 }

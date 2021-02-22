@@ -19,7 +19,7 @@ func (sh jsonShell) Hook() (hook.Hook, error) {
 	return hook.Hook{}, errors.New("this feature is not supported")
 }
 
-func (sh jsonShell) Export(e Export) (string, error) {
+func (sh jsonShell) Export(e env.Export) (string, error) {
 	out, err := json.MarshalIndent(e, "", "  ")
 	if err != nil {
 		return "", err

@@ -23,7 +23,10 @@ func RootCommand() *cobra.Command {
 func Execute(ctx context.Context) {
 	cmd := RootCommand()
 	cmd.AddCommand(HookCommand())
+	cmd.AddCommand(InitCommand())
 	cmd.AddCommand(VersionCommand())
+
+	cmd.SetOut(os.Stdout)
 
 	if err := cmd.ExecuteContext(ctx); err != nil {
 		fmt.Printf("🎃 %s\n", color.Red(err))

@@ -35,7 +35,7 @@ func (sh zsh) Hook() (hook.Hook, error) {
 	return hook.Hook{Contents: zshHook}, nil
 }
 
-func (sh zsh) Export(e Export) (string, error) {
+func (sh zsh) Export(e env.Export) (string, error) {
 	buf := bytes.NewBuffer(nil)
 	for key, value := range e {
 		if value == nil {

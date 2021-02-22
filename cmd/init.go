@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/stackvista/kontext/pkg/env"
 	"github.com/stackvista/kontext/pkg/konfig"
 	"github.com/stackvista/kontext/pkg/shell"
 )
@@ -24,22 +25,23 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	sh, err := shell.DetectShell(arg)
 	if err != nil {
-		return err
+		return nil
 	}
 
+	var exp env.Export
 	konfigPath, err := konfig.FindKontextConfig()
 	if err != nil {
-		return err
-	}
-
-	exp, err := konfig.BuildKontextExport(konfigPath)
-	if err != nil {
-		return err
+		exp = konfig.UnsetKontextExport()
+	} else {
+		exp, err = konfig.BuildKontextExport(konfigPath)
+		if err != nil {
+			return nil
+		}
 	}
 
 	p, err := sh.Export(exp)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	cmd.Print(p)

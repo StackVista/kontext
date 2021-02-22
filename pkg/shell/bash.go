@@ -19,7 +19,7 @@ const bashHook = `
 _{{.Name}}_hook() {
   local previous_exit_status=$?;
   trap -- '' SIGINT;
-  eval "$("{{.SelfPath}}" export bash)";
+  eval "$("{{.SelfPath}}" init bash)";
   trap - SIGINT;
   return $previous_exit_status;
 };

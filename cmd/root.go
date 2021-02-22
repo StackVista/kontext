@@ -2,10 +2,7 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
-
-	color "github.com/logrusorgru/aurora/v3"
 
 	"github.com/spf13/cobra"
 )
@@ -29,7 +26,7 @@ func Execute(ctx context.Context) {
 	cmd.SetOut(os.Stdout)
 
 	if err := cmd.ExecuteContext(ctx); err != nil {
-		fmt.Printf("🎃 %s\n", color.Red(err))
+		// fmt.Printf("🎃 %s\n", color.Red(err))
 		os.Exit(1)
 	}
 }

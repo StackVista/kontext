@@ -18,7 +18,7 @@ var Zsh Shell = zsh{}
 const zshHook = `
 _kontext_hook() {
   trap -- '' SIGINT;
-  eval "$("{{.SelfPath}}" export zsh)";
+  eval "$("{{.SelfPath}}" init zsh)";
   trap - SIGINT;
 }
 typeset -ag precmd_functions;
